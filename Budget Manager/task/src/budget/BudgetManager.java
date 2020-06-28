@@ -1,5 +1,10 @@
 package budget;
 
+import budget.Analyze.SortAllPurchases;
+import budget.Analyze.SortByType;
+import budget.Analyze.SortCertainType;
+import budget.Analyze.SortContext;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
@@ -25,16 +30,10 @@ public class BudgetManager {
                     addPurchase();
                     break;
                 case "3":
-                    int counter = 0;
+                    int counter = checkEmpty();
                     Collection<List<Purchase>> allProducts = account.getPurchases().values();
-                    for (List<Purchase> productList : allProducts) {
-                        if (productList.size() == 0) {
-                            counter++;
-                        }
-                    }
                     if (counter == allProducts.size()) {
                         System.out.println("Purchase list is empty");
-                        break;
                     } else {
                         printPurchases();
                     }
@@ -50,6 +49,9 @@ public class BudgetManager {
                     CreateAccountFromFile createAccountFromFile = new CreateAccountFromFile();
                     account = createAccountFromFile.getAccount();
                     System.out.println("Purchases were loaded!");
+                    break;
+                case "7":
+                    analyze();
                     break;
                 case "0":
                     System.out.println("Bye!");
@@ -102,6 +104,55 @@ public class BudgetManager {
                 account.showAllPurchases();
             } else {
                 account.showPurchaseByCategory(Category.values()[category - 1]);
+            }
+        }
+    }
+
+    private int checkEmpty() {
+        int counter = 0;
+        Collection<List<Purchase>> allProducts = account.getPurchases().values();
+        for (List<Purchase> productList : allProducts) {
+            if (productList.size() == 0) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    private void analyze() {
+        boolean flag = false;
+        while (!flag) {
+            System.out.println();
+            Menu.printMenuForSort();
+            String action = scanner.nextLine();
+            int category = Integer.parseInt(action);
+            if (category == 4) {
+                flag = true;
+                continue;
+            }
+            SortContext sort = new SortContext();
+            switch (category) {
+                case 1:
+                    int counter = checkEmpty();
+                    Collection<List<Purchase>> allProducts = account.getPurchases().values();
+                    if (counter == allProducts.size()) {
+                        System.out.println();
+                        System.out.println("Purchase list is empty");
+                    } else {
+                        sort.setMethod(new SortAllPurchases());
+                        sort.init(account);
+                    }
+                    break;
+                case 2:
+                    sort.setMethod(new SortByType());
+                    sort.init(account);
+                    break;
+                case 3:
+                    sort.setMethod(new SortCertainType());
+                    sort.init(account);
+                    break;
+                default:
+                    System.out.println("Error! Please try again!");
             }
         }
     }

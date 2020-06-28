@@ -28,7 +28,6 @@ public class Account {
         if (Objects.isNull(purchase) || balance < purchase.getPrice()) {
             return false;
         }
-
         purchases.get(purchase.getCategory()).add(purchase);
         setBalance(balance - purchase.getPrice());
         return true;
